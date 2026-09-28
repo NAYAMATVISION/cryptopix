@@ -1,0 +1,12 @@
+# Compiled binaries and build artifacts
+bin/
+build/
+*.o
+*.out
+cryptopix
+
+# Editor and OS temporary files
+.vscode/
+.DS_Store
+*.swp
+*~
