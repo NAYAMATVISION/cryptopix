@@ -1,40 +1,40 @@
 #include "bmp.h"
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*
  * Embeds a null-terminated string into the LSB of the image's pixel bytes.
  * Returns 0 on success, or -1 if the image capacity is too small.
  */
+int stego_encode(BMPImage *img, const char *message) {
+    if (!img || !img->data || !message) return -1;
 
-int stego_enode(BMPImage *img, const char *message) {
-    if(!img || !img->data || !message) return -1;
-
-    size_t msg_len = strlen(message) +1;
+    size_t msg_len = strlen(message) + 1; /* Include '\0' terminator */
     size_t bits_needed = msg_len * 8;
 
-    /* check if image has enough pixel bytes to hold all required bits*/
-    if(bits_needed > img->data) {
-        fprintf(stderr, "Error: Message too long. Needed %zu bytes, but image capacity is %zu bytes.\n"
-            ,bits_needed, img->data_size);
+    /* Check if image has enough pixel bytes to hold all required bits */
+    if (bits_needed > img->data_size) {
+        fprintf(stderr, "Error: Message too long. Needed %zu bytes, but image capacity is %zu bytes.\n",
+                bits_needed, img->data_size);
         return -1;
     }
 
     size_t byte_idx = 0;
 
-    for(size_t i = 0; i < msg_len; i++){
-        unsigned char ch - (unsigned char)message[i];
+    for (size_t i = 0; i < msg_len; i++) {
+        unsigned char ch = (unsigned char)message[i];
 
-        /*Extract bits from Most significant bit(7) to least significant bit (bit0)*/
-        for(bit = 7; bit >= 0; bit--){
+        /* Extract bits from Most Significant (bit 7) to Least Significant (bit 0) */
+        for (int bit = 7; bit >= 0; bit--) {
             int secret_bit = (ch >> bit) & 1;
 
-            /*Clear the carrier byte's LSB with mask 0xFE (11111110) , then OR the secret bit*/
-            img->data[byte_idx] = (img->data[byte_idx] & 0xFE ) | secret_bit;
+            /* Clear the carrier byte's LSB with mask 0xFE (11111110), then OR the secret bit */
+            img->data[byte_idx] = (img->data[byte_idx] & 0xFE) | secret_bit;
             byte_idx++;
         }
     }
+
     return 0;
 }
 
